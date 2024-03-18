@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lego Collection</title>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+
+  <body>
+    <!--Nav Bar-->
+    <nav class="navbar bg-base-100">
+      <div class="flex-1">
+        <a href="/" class="btn btn-ghost normal-case text-xl"
+        >Lego Collection</a>
+      </div>
+      <div class="navbar-center hidden sm:flex">
+        <a href="/about" class="btn btn-ghost">About</a>
+      </div>
+        <ul class="menu menu-horizontal px-1">
+          <li>
+            <details>
+              <summary>Theme</summary>
+              <ul class="p-2 bg-base-100 right-0">
+                <li><a href="/lego/sets?theme=Technic">Technic</a></li>
+                <li><a href="/lego/sets?theme=Books">Books</a></li>
+                <li><a href="/lego/sets?theme=Supplemental">Supplemental</a></li>
+              </ul>
+            </details>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!--Container mx-auto-->
+    <div class="container mx-auto mt-4">
+      <div class="hero bg-base-200 text-center rounded-md p-8">
+        <h1 class="text-4xl font-bold mb-4">Explore Lego Collection</h1>
+        <div>
+        </br>
+        </br>
+        </br>
+        </br>
+        </br>
+          <a href="/lego/sets" class="btn btn-primary block mt-3">View Lego Sets</a>
+        </div>
+      </div>
+    </div>
+    <!--Grid System-->
+    <div class="container mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Card 1 -->
+        <div class="card bg-base-100 shadow-xl">
+          <figure>
+            <img
+              class="w-full"
+              src="https://cdn.rebrickable.com/media/sets/001-1.jpg"
+              alt="Lego Set 1"
+            />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">Gears</h2>
+            <p>
+              This set was released in America (USA/CAN) by Samsonite in 1965.
+              It was re-released in 1969 as an educational set (322-4). It was
+              never released in Europe.
+            </p>
+            <a href="/lego/sets/001-1" class="btn">View Set</a>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="card bg-base-100 shadow-xl">
+          <figure>
+            <img
+              class="w-full"
+              src="https://cdn.rebrickable.com/media/sets/0011-2.jpg"
+              alt="Lego Set 2"
+            />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">Town Mini-Figures</h2>
+            <p>
+              There are 3 Minifigs in this inventory, with 3 total quantity.
+            </p>
+            <a href="/lego/sets/0011-2" class="btn">View Set</a>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="card bg-base-100 shadow-xl">
+          <figure>
+            <img
+              class="w-full"
+              src="https://cdn.rebrickable.com/media/sets/0011-3.jpg"
+              alt="Lego Set 3"
+            />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title">Castle 2 for 1 Bonus Offer</h2>
+            <p>There are 2 unique sets in this inventory.</p>
+            <a href="/lego/sets/0011-3" class="btn">View Set</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
