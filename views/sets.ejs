@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collection</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+      .table td {
+        padding: 20px;
+      }
+      .table td img {
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include('partials/navbar', {page: "lego/sets"}) %>
+    <div class="container mx-auto mt-4">
+      <div class="hero bg-base-200 text-center rounded-md p-8">
+        <h1 class="text-4xl font-bold mb-4" style="margin-bottom: 100px">
+          Lego Sets Collection
+        </h1>
+        <p>
+          Browse the entire collection. Click the theme to filter by themes such
+          as:
+          <a href="#" class="btn btn-details filter-btn" data-theme="technic"
+            >Technic</a
+          >
+          <a href="#" class="btn btn-details filter-btn" data-theme="books"
+            >Books</a
+          >
+          <a
+            href="#"
+            class="btn btn-details filter-btn"
+            data-theme="supplemental"
+            >Supplemental</a
+          >
+        </p>
+      </div>
+    </div>
+    <div class="container mx-auto">
+      <table class="table">
+        <tbody id="table-body">
+          <% sets.forEach(set => { %>
+          <tr>
+            <td>
+              <img
+                src="<%= set.img_url %>"
+                alt="<%= set.name %>"
+                class="avatar"
+              />
+            </td>
+            <td>
+              <span><%= set.name %> | </span>
+              <button
+                class="btn btn-details filter-btn"
+                data-theme="<%= set.theme %>"
+              >
+                <%= set.theme %>
+              </button>
+
+              <span>Year: <%= set.year %> - Parts: <%= set.num_parts %></span>
+              <a href="/lego/sets/<%= set.set_num %>" class="btn btn-details"
+                >Details</a
+              >
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const tableBody = document.getElementById("table-body");
+
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", async () => {
+            const theme = button.dataset.theme;
+
+            try {
+              const response = await fetch(`/lego/sets?theme=${theme}`);
+              const filteredSets = await response.json();
+
+              tableBody.innerHTML = "";
+
+              filteredSets.forEach((set) => {
+                tableBody.innerHTML += `
+                <tr>
+                  <td>
+                    <img src="${set.img_url}" alt="${set.name}" class="avatar">
+                  </td>
+                  <td>
+                    <span>${set.name} | </span>
+                    <button class="btn btn-details filter-btn" data-theme="${set.theme}">${set.theme}</button>
+                    <span>Year: ${set.year} - Parts: ${set.num_parts}</span>
+                    <a href="/lego/sets/${set.set_num}" class="btn btn-details">Details</a>
+                  </td>
+                </tr>
+              `;
+              });
+            } catch (error) {
+              console.error("Error:", error.message);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

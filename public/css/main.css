@@ -25,6 +25,20 @@
   --tw-content: '';
 }
 
+
+.avatar {
+  width: 100px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+  object-fit: cover; /* Ensures the image covers the entire space */
+  border-radius: 10%; /* Creates a circular avatar */
+}
+
+.btn-xs {
+  background-color: #e0e3e5; /* Change to the desired color */
+  color: #080707; /* Text color */
+  border-radius: 50px; /* Adjust the value to control the roundness of the button */
+}
+
 /*
 1. Use a consistent sensible line-height in all browsers.
 2. Prevent adjustments of font size after orientation changes in iOS.
@@ -1384,8 +1398,16 @@ html {
   margin-bottom: 1rem;
 }
 
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
 .mt-4 {
   margin-top: 1rem;
+}
+
+.block {
+  display: block;
 }
 
 .grid {

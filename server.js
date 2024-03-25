@@ -1,12 +1,11 @@
 /********************************************************************************
- * WEB322 – Assignment 03 *
+ * WEB322 – Assignment 04 *
  * I declare that this assignment is my own work in accordance with Seneca's
- * Academic Integrity Policy:
- *
- * https://www.senecacollege.ca/about/policies/academic-integrity-policy.html *
- * Name: Excel Chok Student ID: 138830229 Date: 18 March 2024 *
- * Published URL: https://gorgeous-tick-sarong.cyclic.app *
- ********************************************************************************/
+ * Academic Integrity Policy: *
+ * hOps://www.senecacollege.ca/about/policies/academic-integrity-policy.html *
+ * Name: Excel Chok Student ID: 138830229 Date: ______________ *
+ * Published URL: ___________________________________________________________
+ * ********************************************************************************/
 
 // Requires path for legoSets module
 const legoData = require("./modules/legoSets");
@@ -18,8 +17,8 @@ const app = express();
 const port = process.env.PORT || 8080;
 // Assignment 3: Mark public folder as static
 app.use(express.static("public"));
-// Require path
-const path = require("path");
+// Uses ejs
+app.set("view engine", "ejs");
 
 // Function to start server
 const startServer = async () => {
@@ -41,13 +40,13 @@ const startServer = async () => {
 let configureRoutes = () => {
   // Route for "/"
   app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "home.html"));
+    res.render("home");
   });
 
   // Route for "/about"
   app.get("/about", (req, res) => {
     // Send the about.html file as a response
-    res.sendFile(path.join(__dirname, "views", "about.html"));
+    res.render("about");
   });
 
   // Route for "/lego/sets"
@@ -61,40 +60,39 @@ let configureRoutes = () => {
       } else {
         // ... If there is no theme parameter, fetch all sets
         let allSets = await legoData.getAllSets();
-        res.send(allSets);
+        res.render("sets", { sets: allSets });
       }
     } catch (error) {
       // If any errors occurred, return the error message with the "404" status code
-      res.status(404).send(`Error: ${error.message}`);
+      res.status(404).render("404", {
+        message: "No set found for the specified sets.",
+      });
     }
   });
 
   // Route for "/lego/sets/num-demo"
   app.get("/lego/sets/:setNum", async (req, res) => {
-    try {
-      // Extract the set number from the URL params
-      const setNum = req.params.setNum;
+    // Extract the set number from the URL params
+    const setNum = req.params.setNum;
 
-      // Fetch the Lego set by set number
-      let specificSet = await legoData.getSetByNum(setNum);
+    // Fetch the Lego set by set number
+    let specificSet = await legoData.getSetByNum(setNum);
 
-      // Check if the set exists
-      if (specificSet) {
-        // If the set exists, send it as a response
-        res.send(specificSet);
-      } else {
-        // If the set does not exist, return a 404 error
-        res.status(404).send(`Lego set with set_num ${setNum} not found.`);
-      }
-    } catch (error) {
-      // If any errors occurred, return the error message with the "404" status code
-      res.status(404).send(`Error: ${error.message}`);
+    // Check if the set exists
+    if (specificSet) {
+      // If the set exists, render the "set.ejs" file with the set data
+      res.render("set", { set: specificSet });
+    } else {
+      // If the set does not exist, render a 404 page
+      res.status(404).render("404", {
+        message: "No set found for the specified set.",
+      });
     }
   });
 
   // Route for handling 404 errors
   app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+    res.status(404).render("404", { message: "Page not found" });
   });
 };
 
