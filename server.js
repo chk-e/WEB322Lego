@@ -3,8 +3,8 @@
  * I declare that this assignment is my own work in accordance with Seneca's
  * Academic Integrity Policy: *
  * hOps://www.senecacollege.ca/about/policies/academic-integrity-policy.html *
- * Name: Excel Chok Student ID: 138830229 Date: ______________ *
- * Published URL: ___________________________________________________________
+ * Name: Excel Chok Student ID: 138830229 Date: 25 March 2024 *
+ * Published URL: https://gorgeous-tick-sarong.cyclic.app
  * ********************************************************************************/
 
 // Requires path for legoSets module
