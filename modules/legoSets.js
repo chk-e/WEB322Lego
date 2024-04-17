@@ -1,102 +1,188 @@
-const setData = require("../data/setData");
-const themeData = require("../data/themeData");
+const setData = require("../data/setData.json");
+const themeData = require("../data/themeData.json");
+require("dotenv").config();
+const Sequelize = require("sequelize");
 
-let sets = [];
+const sequelize = new Sequelize("Lego", "Week11_owner", "DgpE8IfWkR4s", {
+  host: "ep-fragrant-butterfly-a5qb869e.us-east-2.aws.neon.tech",
+  dialect: "postgres",
+  port: 5432,
+  dialectOptions: {
+    ssl: { rejectUnauthorized: false },
+  },
+});
 
-// Initialize function adds copies of all setData objects with themes into sets array
-let initialize = () => {
-  // Creates a promise
-  return new Promise((resolve, reject) => {
+const Theme = sequelize.define(
+  "Theme",
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true, // use "id" as a primary key
+      autoIncrement: true, // automatically increment the value
+    },
+    name: Sequelize.STRING,
+  },
+  {
+    createdAt: false, // disable createdAt
+    updatedAt: false, // disable updatedAt
+  }
+);
+
+const Set = sequelize.define(
+  "Set",
+  {
+    set_num: {
+      type: Sequelize.STRING,
+      primaryKey: true, // use "set_num" as a primary key
+    },
+    name: Sequelize.STRING,
+    year: Sequelize.INTEGER,
+    theme_id: Sequelize.INTEGER,
+    num_parts: Sequelize.INTEGER,
+    img_url: Sequelize.STRING,
+  },
+  {
+    createdAt: false, // disable createdAt
+    updatedAt: false, // disable updatedAt
+    tableName: "sets", // specify the correct table name
+  }
+);
+
+Set.belongsTo(Theme, { foreignKey: "theme_id" });
+
+function initialize() {
+  return new Promise(async (resolve, reject) => {
     try {
-      // Iterates through each object in setData
-      setData.forEach((object) => {
-        // .find() to look for matches between theme_id between setData and themeData
-        let objectThemed = themeData.find(
-          (theme) => theme.id === object.theme_id
-        );
-        // If the theme is found, .find() did not return undefined, ...
-        if (objectThemed) {
-          let setThemed = {
-            // ... Spread syntax is used to shallow copy all key and value pairs ...
-            ...object,
-            // ... Adds new key-value pair ...
-            theme: objectThemed.name,
-          };
-          // ...Pushes modified object with theme into sets []
-          sets.push(setThemed);
+      // Synchronize Sequelize models with the database schema
+      await sequelize.sync();
+
+      // Check if there are any themes in the database
+      const themes = await Theme.findAll();
+      if (themes.length === 0) {
+        // Populate themes from themeData if database is empty
+        for (const theme of themeData) {
+          await Theme.create({ name: theme.name });
         }
-      });
-      // If codes in try block is completed, calls to resolve ...
+        console.log("Themes initialized in database.");
+      }
+
+      // Check if there are any sets in the database
+      const sets = await Set.findAll();
+      if (sets.length === 0) {
+        // Populate sets from setData if database is empty
+        for (const set of setData) {
+          const yearInt = parseInt(set.year, 10);
+          if (!isNaN(yearInt)) {
+            await Set.create({
+              set_num: set.set_num,
+              name: set.name,
+              year: yearInt,
+              theme_id: set.theme_id,
+              num_parts: set.num_parts,
+              img_url: set.img_url,
+            });
+          }
+        }
+        console.log("Sets initialized in database.");
+      }
+
+      resolve(); // Resolve the promise when initialization is complete
+    } catch (err) {
+      reject(err.message); // Reject with error message if any error occurs
+    }
+  });
+}
+
+function getAllSets() {
+  return new Promise(async (resolve, reject) => {
+    let sets = await Set.findAll({ include: [Theme] });
+    resolve(sets);
+  });
+}
+
+function getSetByNum(setNum) {
+  return new Promise(async (resolve, reject) => {
+    let foundSet = await Set.findAll({
+      include: [Theme],
+      where: { set_num: setNum },
+    });
+
+    if (foundSet.length > 0) {
+      resolve(foundSet[0]);
+    } else {
+      reject("Unable to find requested set");
+    }
+  });
+}
+
+function getSetsByTheme(theme) {
+  return new Promise(async (resolve, reject) => {
+    let foundSets = await Set.findAll({
+      include: [Theme],
+      where: {
+        "$Theme.name$": {
+          [Sequelize.Op.iLike]: `%${theme}%`,
+        },
+      },
+    });
+
+    if (foundSets.length > 0) {
+      resolve(foundSets);
+    } else {
+      reject("Unable to find requested sets");
+    }
+  });
+}
+
+function getAllThemes() {
+  return new Promise(async (resolve, reject) => {
+    let themes = await Theme.findAll();
+    resolve(themes);
+  });
+}
+
+function addSet(setData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await Set.create(setData);
       resolve();
-    } catch (error) {
-      // ... If not completed, calls to reject
-      reject(error);
+    } catch (err) {
+      reject(err.errors[0].message);
     }
   });
-};
+}
 
-// Function that returns the completed sets []
-let getAllSets = () => {
-  // Creates a promise
-  return new Promise((resolve, reject) => {
+function editSet(set_num, setData) {
+  return new Promise(async (resolve, reject) => {
     try {
-      // If sets [] now populated with objects, return it as resolve
-      resolve(sets);
-    } catch (error) {
-      // ... If not completed, calls to reject
-      reject(error);
+      await Set.update(setData, { where: { set_num: set_num } });
+      resolve();
+    } catch (err) {
+      reject(err.errors[0].message);
     }
   });
-};
+}
 
-// Function that returns a specific set by setNum
-let getSetByNum = (setNum) => {
-  // Creates a promise
-  return new Promise((resolve, reject) => {
+function deleteSet(set_num) {
+  return new Promise(async (resolve, reject) => {
     try {
-      // Uses .find() to find matching setNum
-      let specificSet = sets.find((set) => set.set_num === setNum);
-      // If set is found, return it as resolve
-      if (specificSet) {
-        resolve(specificSet);
-      } else {
-        // If not, returns an error message as reject
-        reject(new Error(`Number "${setNum}" not found.`));
-      }
-    } catch (error) {
-      reject(error);
+      await Set.destroy({
+        where: { set_num: set_num },
+      });
+      resolve();
+    } catch (err) {
+      reject(err.errors[0].message);
     }
   });
+}
+
+module.exports = {
+  initialize,
+  getAllSets,
+  getSetByNum,
+  getSetsByTheme,
+  getAllThemes,
+  addSet,
+  editSet,
+  deleteSet,
 };
-
-// Function that returns a specific set(s) by theme
-let getSetsByTheme = (theme) => {
-  // Creates a promise
-  return new Promise((resolve, reject) => {
-    try {
-      // Filters out sets [], convert theme to lowercase for both in sets and in argument, find the matching theme
-      let filteredSets = sets.filter((set) =>
-        set.theme.toLowerCase().includes(theme.toLowerCase())
-      );
-      // If matching theme is found, array size is not = 0
-      if (filteredSets.length !== 0) {
-        // Return new sets [] with matching themes
-        resolve(filteredSets);
-      } else {
-        // If array size = 0, rejects with an error message
-        reject(new Error(`Theme with "${theme}" not found.`));
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-// //Testing
-// initialize();
-// console.log(getAllSets());
-// console.log(getSetByNum("003-1"));
-// console.log(getSetsByTheme("book"));
-
-// Object literal shorthand for exporting modules
-module.exports = { initialize, getAllSets, getSetByNum, getSetsByTheme };
