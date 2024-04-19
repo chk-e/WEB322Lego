@@ -1,9 +1,9 @@
 /********************************************************************************
- * WEB322 – Assignment 04 *
+ * WEB322 – Assignment 06 *
  * I declare that this assignment is my own work in accordance with Seneca's
  * Academic Integrity Policy: *
  * hOps://www.senecacollege.ca/about/policies/academic-integrity-policy.html *
- * Name: Excel Chok Student ID: 138830229 Date: 17 April 2024 *
+ * Name: Excel Chok Student ID: 138830229 Date: 19 April 2024 *
  * Published URL: https://gorgeous-tick-sarong.cyclic.app
  * ********************************************************************************/
 
@@ -13,8 +13,6 @@ const path = require("path");
 
 const app = express();
 const port = 8080;
-
-app.set("view engine", "ejs");
 
 legoData
   .initialize()
@@ -28,6 +26,8 @@ legoData
   });
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
 // Routes
 app.get("/", (req, res) => {
@@ -38,45 +38,30 @@ app.get("/about", (req, res) => {
   res.render("about", { page: "/about" });
 });
 
-app.get("/lego/sets", (req, res) => {
-  const theme = req.query.theme;
-  if (theme) {
-    legoData
-      .getSetsByTheme(theme)
-      .then((foundSets) => {
-        // Render the "sets.ejs" view with the Lego sets data
-        res.render("sets", { sets: foundSets, page: "/lego/sets" });
-      })
-      .catch((error) => {
-        res.status(404).send(error);
-      });
-  } else {
-    legoData
-      .getAllSets()
-      .then((allSets) => {
-        // Render the "sets.ejs" view with all Lego sets data
-        res.render("sets", { sets: allSets, page: "/lego/sets" });
-      })
-      .catch((error) => {
-        res.status(500).send(error);
-      });
-  }
-});
+app.get("/lego/sets", async (req, res) => {
+  let sets = [];
 
-app.get("/lego/sets/:setNum", async (req, res) => {
   try {
-    const set = await legoData.getSetByNum(req.params.setNum);
-    if (set) {
-      res.render("set", { set: set, page: "" });
+    if (req.query.theme) {
+      sets = await legoData.getSetsByTheme(req.query.theme);
     } else {
-      res.status(404).render("404", { message: "Set not found" });
+      sets = await legoData.getAllSets();
     }
-  } catch (error) {
-    res.status(404).render("404", { message: error });
+
+    res.render("sets", { sets });
+  } catch (err) {
+    res.status(404).render("404", { message: err });
   }
 });
 
-app.use(express.urlencoded({ extended: true }));
+app.get("/lego/sets/:num", async (req, res) => {
+  try {
+    let set = await legoData.getSetByNum(req.params.num);
+    res.render("set", { set });
+  } catch (err) {
+    res.status(404).render("404", { message: err });
+  }
+});
 
 app.get("/lego/addSet", async (req, res) => {
   try {
@@ -141,3 +126,6 @@ app.use((req, res) => {
     message: "I'm sorry, we're unable to find what you're looking for",
   });
 });
+
+// Vosk7PiOgPkWNP5z
+// mongodb+srv://excelchk17:Vosk7PiOgPkWNP5z@cluster0.l8puova.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
